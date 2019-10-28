@@ -1,4 +1,4 @@
-package testSVN;
+package com.testSVN;
 
 public class TestSVN {
 
