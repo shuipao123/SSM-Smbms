@@ -273,6 +273,7 @@ public class UserController {
 				} else {
 					request.setAttribute(errorInfo, " * 上传图片格式不正确");
 					flag = false;
+
 				}
 			}
 		}
