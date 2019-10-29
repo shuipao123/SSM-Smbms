@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dzl.smbms.dao.BillMapper">
+
+	<resultMap id="BaseResultMap" type="Bill">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="billCode" property="billCode" jdbcType="VARCHAR" />
+		<result column="productName" property="productName" jdbcType="VARCHAR" />
+		<result column="productDesc" property="productDesc" jdbcType="VARCHAR" />
+		<result column="productUnit" property="productUnit" jdbcType="VARCHAR" />
+		<result column="productCount" property="productCount" jdbcType="DECIMAL" />
+		<result column="totalPrice" property="totalPrice" jdbcType="DECIMAL" />
+		<result column="isPayment" property="isPayment" jdbcType="INTEGER" />
+		<result column="createdBy" property="createdBy" jdbcType="BIGINT" />
+		<result column="creationDate" property="creationDate" jdbcType="TIMESTAMP" />
+		<result column="modifyBy" property="modifyBy" jdbcType="BIGINT" />
+		<result column="modifyDate" property="modifyDate" jdbcType="TIMESTAMP" />
+		<result column="providerId" property="providerId" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<resultMap type="Provider" id="getBillList">
+		<result property="proname" column="proName"/>
+		<collection property="bills" ofType="Bill">
+			<id property="id" column="id"/>
+			<result property="proName" column="proName"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="Bill" id="getBillListss">
+		<id property="id" column="bid"/>
+		<result property="productName" column="productName"/>
+		<result property="proName" column="proName"/>
+	</resultMap>
+	
+	<!--  Bill表sql片段  -->
+	<sql id="Base_Column_List">
+		id, billCode, productName, productDesc, productUnit, productCount,
+		totalPrice, isPayment,
+		createdBy, creationDate, modifyBy, modifyDate, providerId
+	</sql>
+	
+	<!--  按商品名（模糊查询） 供应商id 是否付款 进行查询  -->
+	<select id="getBillListByproductNameAndIdAndisPayment" resultMap="getBillList" >
+		SELECT b.billCode,b.productName,p.proName as proName,b.totalPrice,b.isPayment,b.creationDate FROM smbms_bill b,smbms_provider p 
+		WHERE b.providerId=p.id 
+		<if test="productName!=null and productName!=''">AND b.productName LIKE CONCAT('%',#{productName},'%')</if>
+		<if test="providerId!=null"> AND  b.providerId = #{providerId}</if>
+		<if test="isPayment!=null"> AND b.isPayment=#{isPayment}</if>
+	</select>
+
+	<!--  按商品名（模糊查询） 供应商id 是否付款 进行查询   分页 -->
+	<select id="selectBillList" resultMap="getBillListss" >
+		SELECT b.id as bid,b.billCode,b.productName,p.proName as proName,b.totalPrice,b.isPayment,b.creationDate FROM smbms_bill b,smbms_provider p 
+		WHERE b.providerId=p.id 
+		<if test="productName!=null and productName!=''">AND b.productName LIKE  CONCAT('%',#{productName},'%')</if>
+		<if test="providerId !=null and providerId!=0"> AND  b.providerId = #{providerId}</if>
+		<if test="isPayment !=null and isPayment!=0"> AND b.isPayment=#{isPayment}</if>
+		order by creationDate DESC limit #{currentPageNo},#{pageSize}
+	</select>
+	
+	<!-- 通过条件查询-供应商表记录数  -->
+	<select id="selectBillCount" resultType="int">
+		SELECT count(*) as count  FROM smbms_bill b,smbms_provider p WHERE b.providerId=p.id
+		<if test="productName!=null and productName!=''">AND b.productName LIKE CONCAT('%',#{productName},'%')</if>
+		<if test="providerId !=null and providerId!=0 "> AND  b.providerId = #{providerId}</if>
+		<if test="isPayment !=null and isPayment!=0" > AND b.isPayment=#{isPayment}</if>
+	</select>
+	
+	
+	<select id="selectByPrimaryKey" resultMap="getBillListss"
+		parameterType="java.lang.Integer">
+		SELECT  b.id as bid,b.providerId,b.billCode,b.productName,b.productUnit,b.productCount,b.totalPrice,p.proName as proName,b.isPayment 
+		FROM smbms_bill b,smbms_provider p 
+		WHERE b.providerId=p.id and b.id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from smbms_bill
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<insert id="insert" parameterType="Bill">
+		insert into smbms_bill (billCode, productName,
+		productDesc, productUnit, productCount,
+		totalPrice, isPayment, createdBy,
+		creationDate,providerId)
+		values (#{billCode,jdbcType=VARCHAR},
+		#{productName,jdbcType=VARCHAR},
+		#{productDesc,jdbcType=VARCHAR}, 
+		#{productUnit,jdbcType=VARCHAR},
+		#{productCount,jdbcType=DECIMAL},
+		#{totalPrice,jdbcType=DECIMAL}, 
+		#{isPayment,jdbcType=INTEGER},
+		#{createdBy,jdbcType=BIGINT},
+		#{creationDate,jdbcType=TIMESTAMP}, 
+		#{providerId,jdbcType=INTEGER})
+	</insert>
+
+	<insert id="insertSelective" parameterType="Bill">
+		insert into smbms_bill
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="billCode != null">
+				billCode,
+			</if>
+			<if test="productName != null">
+				productName,
+			</if>
+			<if test="productDesc != null">
+				productDesc,
+			</if>
+			<if test="productUnit != null">
+				productUnit,
+			</if>
+			<if test="productCount != null">
+				productCount,
+			</if>
+			<if test="totalPrice != null">
+				totalPrice,
+			</if>
+			<if test="isPayment != null">
+				isPayment,
+			</if>
+			<if test="createdBy != null">
+				createdBy,
+			</if>
+			<if test="creationDate != null">
+				creationDate,
+			</if>
+			<if test="providerId != null">
+				providerId,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="billCode != null">
+				#{billCode,jdbcType=VARCHAR},
+			</if>
+			<if test="productName != null">
+				#{productName,jdbcType=VARCHAR},
+			</if>
+			<if test="productDesc != null">
+				#{productDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="productUnit != null">
+				#{productUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="productCount != null">
+				#{productCount,jdbcType=DECIMAL},
+			</if>
+			<if test="totalPrice != null">
+				#{totalPrice,jdbcType=DECIMAL},
+			</if>
+			<if test="isPayment != null">
+				#{isPayment,jdbcType=INTEGER},
+			</if>
+			<if test="createdBy != null">
+				#{createdBy,jdbcType=BIGINT},
+			</if>
+			<if test="creationDate != null">
+				#{creationDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="providerId != null">
+				#{providerId,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateByPrimaryKeySelective" parameterType="Bill">
+		update smbms_bill
+		<set>
+			<if test="billCode != null">
+				billCode = #{billCode,jdbcType=VARCHAR},
+			</if>
+			<if test="productName != null">
+				productName = #{productName,jdbcType=VARCHAR},
+			</if>
+			<if test="productDesc != null">
+				productDesc = #{productDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="productUnit != null">
+				productUnit = #{productUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="productCount != null">
+				productCount = #{productCount,jdbcType=DECIMAL},
+			</if>
+			<if test="totalPrice != null">
+				totalPrice = #{totalPrice,jdbcType=DECIMAL},
+			</if>
+			<if test="isPayment != null">
+				isPayment = #{isPayment,jdbcType=INTEGER},
+			</if>
+			<if test="modifyBy != null">
+				modifyBy = #{modifyBy,jdbcType=BIGINT},
+			</if>
+			<if test="modifyDate != null">
+				modifyDate = #{modifyDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="providerId != null">
+				providerId = #{providerId,jdbcType=INTEGER},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="updateByPrimaryKey" parameterType="Bill">
+		update smbms_bill
+		set billCode = #{billCode,jdbcType=VARCHAR},
+		productName = #{productName,jdbcType=VARCHAR},
+		productDesc = #{productDesc,jdbcType=VARCHAR},
+		productUnit = #{productUnit,jdbcType=VARCHAR},
+		productCount = #{productCount,jdbcType=DECIMAL},
+		totalPrice = #{totalPrice,jdbcType=DECIMAL},
+		isPayment = #{isPayment,jdbcType=INTEGER},
+		modifyBy = #{modifyBy,jdbcType=BIGINT},
+		modifyDate = #{modifyDate,jdbcType=TIMESTAMP},
+		providerId = #{providerId,jdbcType=INTEGER}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="logImpl" value="LOG4J" />
+		<!-- 设置自动映射级别，默认级别为partial 自动进行属性匹配，如果有特殊类型除外(类里面嵌套类，类里面嵌套集合)。 禁止自动匹配： 
+			autoMappingBehavior 值：NONE,当取fULL值时是自动匹配所有 -->
+		<!-- <setting name="autoMappingBehavior" value="FULL"/> -->
+		<setting name="autoMappingBehavior" value="FULL" />
+		<setting name="lazyLoadingEnabled" value="false" />  
+	</settings>
+	<!-- 配置别名 -->
+	<typeAliases>
+		<package name="com.dzl.smbms.pojo" />
+	</typeAliases>
+</configuration>
